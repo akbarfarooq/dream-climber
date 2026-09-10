@@ -23,26 +23,86 @@ import PsychologyScreen from './components/screens/PsychologyScreen';
 import DashboardScreen from './components/screens/DashboardScreen';
 import Navigation from './components/ui/Navigation';
 
+const SESSION_KEY = 'dream_climber_session_active';
+
 export default function App() {
-  const { gamePhase, playerName, exitToMap, setPhase } = useGameStore();
+  const { gamePhase, playerName, setPhase } = useGameStore();
   const isInitialLoad = useRef(true);
 
+  // Initial session check:
+  // 1. If this is a page refresh in the same browser tab, sessionStorage is active:
+  //    -> Keep user exactly where they are (answering question, climbing, worldmap, etc.)
+  // 2. If this is a fresh visit (user clicked website link / new tab / new window):
+  //    -> Always show the University Title Page first!
   useEffect(() => {
     if (isInitialLoad.current) {
       isInitialLoad.current = false;
-      
-      // If the player has a saved name (meaning they are returning),
-      // we must land them directly on the World Map on refresh.
-      if (playerName) {
-        if (['climbing', 'transitioning', 'feedback', 'failed', 'summit', 'victory'].includes(gamePhase)) {
-           // If they were in the middle of a game, use exitToMap so state is cleaned up/paused
-           exitToMap();
-        } else if (gamePhase === 'title' || gamePhase === 'welcome' || gamePhase === 'setup') {
-           setPhase('worldmap');
+      const hadSession = typeof window !== 'undefined' && sessionStorage.getItem(SESSION_KEY) === 'true';
+
+      if (!hadSession) {
+        // Fresh visit / opening website link
+        sessionStorage.setItem(SESSION_KEY, 'true');
+
+        const hash = window.location.hash.toLowerCase();
+        if (hash.includes('about')) {
+          setPhase('about');
+        } else if (hash.includes('how-to-play')) {
+          setPhase('how-to-play');
+        } else if (hash.includes('psychology')) {
+          setPhase('psychology');
+        } else if (hash.includes('dashboard') && playerName) {
+          setPhase('dashboard');
+        } else {
+          // By default, every fresh visit opens the University Title Page!
+          setPhase('title');
         }
       }
+      // If hadSession === true, it's a page refresh! We preserve current gamePhase, question, and progress!
     }
-  }, [playerName, gamePhase, exitToMap, setPhase]);
+  }, [playerName, setPhase]);
+
+  // Sync URL hash with gamePhase so users have direct address links
+  useEffect(() => {
+    const phaseToHash: Record<string, string> = {
+      title: '#/title',
+      welcome: '#/welcome',
+      setup: '#/setup',
+      worldmap: '#/worldmap',
+      climbing: '#/game',
+      feedback: '#/game',
+      transitioning: '#/game',
+      failed: '#/game-over',
+      summit: '#/summit',
+      victory: '#/victory',
+      about: '#/about',
+      'how-to-play': '#/how-to-play',
+      psychology: '#/psychology',
+      dashboard: '#/dashboard',
+    };
+
+    const targetHash = phaseToHash[gamePhase];
+    if (targetHash && window.location.hash !== targetHash) {
+      window.history.replaceState(null, '', targetHash);
+    }
+  }, [gamePhase]);
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.toLowerCase();
+      if (hash.includes('title')) setPhase('title');
+      else if (hash.includes('welcome')) setPhase('welcome');
+      else if (hash.includes('setup')) setPhase('setup');
+      else if (hash.includes('worldmap') && playerName) setPhase('worldmap');
+      else if (hash.includes('about')) setPhase('about');
+      else if (hash.includes('how-to-play')) setPhase('how-to-play');
+      else if (hash.includes('psychology')) setPhase('psychology');
+      else if (hash.includes('dashboard') && playerName) setPhase('dashboard');
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [playerName, setPhase]);
 
   const renderScreen = () => {
     switch (gamePhase) {

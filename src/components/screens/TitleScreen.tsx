@@ -7,7 +7,7 @@ import Mountain3D from '../game/Mountain3D';
 import { GraduationCap, UserCheck, Users, Play, Volume2, VolumeX, Sparkles } from 'lucide-react';
 
 export default function TitleScreen() {
-  const { setPhase, soundEnabled, toggleSound } = useGameStore();
+  const { setPhase, soundEnabled, toggleSound, playerName, resetGame } = useGameStore();
 
   const designers = [
     'Syeda Aymal Hassan',
@@ -21,7 +21,11 @@ export default function TitleScreen() {
     if (soundEnabled) {
       audioService.playStep();
     }
-    setPhase('welcome');
+    if (playerName) {
+      setPhase('worldmap');
+    } else {
+      setPhase('welcome');
+    }
   };
 
   return (
@@ -115,20 +119,39 @@ export default function TitleScreen() {
         </div>
       </motion.div>
 
-      {/* Bottom Action: Start Game CTA */}
+      {/* Bottom Action: Start Game / Continue Journey CTA */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
         className="relative z-10 flex flex-col items-center text-center mb-2 sm:mb-4"
       >
+        {playerName && (
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/15 border border-gold/40 text-gold text-xs sm:text-sm font-semibold tracking-wider mb-3 shadow-[0_0_15px_rgba(255,215,0,0.2)]">
+            <span>🧗 Welcome back, <strong className="text-white font-bold">{playerName}</strong>!</span>
+          </div>
+        )}
+
         <button
           onClick={handleStart}
           className="btn-gold flex items-center gap-3 text-base sm:text-lg md:text-xl px-10 sm:px-14 py-4 md:py-5 uppercase tracking-widest font-bold cursor-pointer"
         >
-          <span>START GAME</span>
+          <span>{playerName ? 'CONTINUE JOURNEY' : 'START GAME'}</span>
           <Play className="w-5 h-5 fill-current" />
         </button>
+
+        {playerName && (
+          <button
+            onClick={() => {
+              if (soundEnabled) audioService.playStep();
+              resetGame();
+              setPhase('welcome');
+            }}
+            className="mt-3 text-xs sm:text-sm text-white/50 hover:text-gold transition-colors underline underline-offset-4 tracking-wider cursor-pointer"
+          >
+            Start as New Climber
+          </button>
+        )}
 
         <p className="text-xs sm:text-sm text-sky-blue/70 mt-3 font-light tracking-wider">
           The Dream Climber • Educational Web Game

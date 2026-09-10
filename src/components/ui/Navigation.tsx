@@ -3,7 +3,7 @@ import { Menu, X, Mountain, Info, BookOpen, Brain, Home, LayoutDashboard, Volume
 import { useGameStore } from '../../store/gameStore';
 
 export default function Navigation() {
-  const { gamePhase, setPhase, lastAnswerCorrect, isMobileMenuOpen, setMobileMenuOpen, toggleMobileMenu, soundEnabled, toggleSound } = useGameStore();
+  const { gamePhase, setPhase, lastAnswerCorrect, isMobileMenuOpen, setMobileMenuOpen, toggleMobileMenu, soundEnabled, toggleSound, playerName } = useGameStore();
 
   const links = [
     { id: 'worldmap', label: 'Home', icon: Home },
@@ -24,7 +24,7 @@ export default function Navigation() {
     <>
       {/* Desktop Navigation */}
       <nav className="z-50 hidden lg:flex items-center justify-between px-8 h-20 bg-sky-night border-b border-white/10 shadow-lg shrink-0">
-        <div className="flex items-center gap-3 text-gold pointer-events-auto cursor-pointer" onClick={() => handleNav(gamePhase === 'welcome' ? 'welcome' : 'worldmap')}>
+        <div className="flex items-center gap-3 text-gold pointer-events-auto cursor-pointer" onClick={() => handleNav(playerName ? 'worldmap' : 'welcome')}>
           <Mountain className="w-8 h-8" />
           <span className="font-display font-bold text-xl tracking-widest uppercase">The Dream Climber</span>
         </div>
@@ -98,7 +98,7 @@ export default function Navigation() {
               <div className="pt-2 pb-6 pr-10">
                 <div 
                   className="flex items-center gap-3 text-gold pointer-events-auto cursor-pointer" 
-                  onClick={() => handleNav(gamePhase === 'welcome' ? 'welcome' : 'worldmap')}
+                  onClick={() => handleNav(playerName ? 'worldmap' : 'welcome')}
                 >
                   <Mountain className="w-8 h-8 shrink-0" />
                   <span className="font-display font-bold text-xl tracking-widest uppercase leading-tight text-left">The Dream Climber</span>
