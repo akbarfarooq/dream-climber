@@ -1,10 +1,10 @@
 import { motion } from 'motion/react';
 import { useGameStore } from '../../store/gameStore';
-import { ArrowLeft, Mountain, Users, Lightbulb, User } from 'lucide-react';
+import { ArrowLeft, Mountain, Users, Lightbulb, User, GraduationCap } from 'lucide-react';
 import ParticleBackground from '../ui/ParticleBackground';
 
 export default function AboutScreen() {
-  const { goBack } = useGameStore();
+  const { goBack, setPhase } = useGameStore();
 
   return (
     <div className="relative h-full w-full bg-mt-dark p-6 md:p-12 overflow-y-auto pt-10 lg:pt-16 pb-24 lg:pb-32">
@@ -40,9 +40,32 @@ export default function AboutScreen() {
               <User className="w-8 h-8" />
               <h2 className="text-2xl font-bold uppercase tracking-widest">Who made this?</h2>
             </div>
-            <p className="text-white/80 leading-relaxed text-lg">
-              Created as part of Educational Psychology 521 assignment under the supervision of Dr. Maroof Bin Rauf, Department of Education, 1st Semester 2026.
+            <p className="text-white/80 leading-relaxed text-lg mb-4">
+              Created as part of an educational psychology project at the <strong className="text-gold">University of Karachi, Department of Education</strong> (Class: B.S 3rd year morning).
             </p>
+            <div className="mt-4 pt-4 border-t border-white/10 space-y-3">
+              <p className="text-white/90 text-base">
+                <span className="text-gold font-semibold uppercase tracking-wider">Project Head:</span> Sir Maroof Bin Rouf
+              </p>
+              <div>
+                <p className="text-gold font-semibold uppercase tracking-wider text-base mb-2">Project Designers:</p>
+                <div className="flex flex-wrap gap-2">
+                  {['Syeda Aymal Hassan', 'Rabia Azmat', 'Mishkat Shoukat', 'Sadia Batool', 'Tooba Ahmed'].map((name, i) => (
+                    <span key={i} className="px-3 py-1.5 bg-white/5 border border-white/15 rounded-xl text-sm font-medium text-white/90">
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="pt-2">
+                <button
+                  onClick={() => setPhase('title')}
+                  className="inline-flex items-center gap-2 text-sm text-gold hover:text-white underline underline-offset-4 tracking-wider uppercase font-semibold cursor-pointer transition-colors"
+                >
+                  <GraduationCap className="w-4 h-4" /> View Full University Title Page
+                </button>
+              </div>
+            </div>
           </motion.section>
 
           <motion.section 

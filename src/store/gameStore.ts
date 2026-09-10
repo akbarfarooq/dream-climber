@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type GamePhase = 'welcome' | 'setup' | 'worldmap' | 'transitioning' | 'climbing' | 'feedback' | 'failed' | 'summit' | 'victory' | 'about' | 'how-to-play' | 'psychology' | 'dashboard';
+export type GamePhase = 'title' | 'welcome' | 'setup' | 'worldmap' | 'transitioning' | 'climbing' | 'feedback' | 'failed' | 'summit' | 'victory' | 'about' | 'how-to-play' | 'psychology' | 'dashboard';
 
 interface GameState {
   playerName: string;
@@ -53,7 +53,7 @@ export const useGameStore = create<GameState>()(
       lives: 3,
       mountainScores: Array(7).fill(0),
       totalScore: 0,
-      gamePhase: 'welcome',
+      gamePhase: 'title',
       previousPhase: null,
       lastAnswerCorrect: null,
       completedMountains: [],
@@ -64,7 +64,7 @@ export const useGameStore = create<GameState>()(
       setPlayerInfo: (name, dream) => set({ playerName: name, selectedDream: dream, gamePhase: 'worldmap' }),
       
       setPhase: (phase) => set((state) => {
-        const staticPages: GamePhase[] = ['about', 'how-to-play', 'psychology', 'dashboard'];
+        const staticPages: GamePhase[] = ['about', 'how-to-play', 'psychology', 'dashboard', 'title'];
         const isCurrentStatic = staticPages.includes(state.gamePhase);
         
         const isGameActive = state.gamePhase === 'climbing' || state.gamePhase === 'feedback';
@@ -198,7 +198,7 @@ export const useGameStore = create<GameState>()(
         lives: 3,
         mountainScores: Array(7).fill(0),
         totalScore: 0,
-        gamePhase: 'welcome',
+        gamePhase: 'title',
         previousPhase: null,
         lastAnswerCorrect: null,
         completedMountains: [],

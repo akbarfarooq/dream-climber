@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useGameStore } from './store/gameStore';
 
 // Screens
+import TitleScreen from './components/screens/TitleScreen';
 import WelcomeScreen from './components/screens/WelcomeScreen';
 import SetupScreen from './components/screens/SetupScreen';
 import WorldMapScreen from './components/screens/WorldMapScreen';
@@ -36,7 +37,7 @@ export default function App() {
         if (['climbing', 'transitioning', 'feedback', 'failed', 'summit', 'victory'].includes(gamePhase)) {
            // If they were in the middle of a game, use exitToMap so state is cleaned up/paused
            exitToMap();
-        } else if (gamePhase === 'welcome' || gamePhase === 'setup') {
+        } else if (gamePhase === 'title' || gamePhase === 'welcome' || gamePhase === 'setup') {
            setPhase('worldmap');
         }
       }
@@ -45,6 +46,8 @@ export default function App() {
 
   const renderScreen = () => {
     switch (gamePhase) {
+      case 'title':
+        return <TitleScreen key="title" />;
       case 'welcome':
         return <WelcomeScreen key="welcome" />;
       case 'setup':
@@ -77,7 +80,7 @@ export default function App() {
 
   return (
     <main className="h-screen w-full bg-sky-night text-white antialiased selection:bg-gold/30 overflow-hidden relative flex flex-col">
-      <Navigation />
+      {gamePhase !== 'title' && <Navigation />}
       <div className="flex-1 relative overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
