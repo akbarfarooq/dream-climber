@@ -138,13 +138,20 @@ export default function App() {
     }
   };
 
+  const getScreenKey = () => {
+    if (gamePhase === 'climbing' || gamePhase === 'feedback') {
+      return 'game';
+    }
+    return gamePhase;
+  };
+
   return (
     <main className="h-screen w-full bg-sky-night text-white antialiased selection:bg-gold/30 overflow-hidden relative flex flex-col">
       {gamePhase !== 'title' && <Navigation />}
       <div className="flex-1 relative overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
-            key={gamePhase}
+            key={getScreenKey()}
             initial={{ opacity: 0, scale: 1.05 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}

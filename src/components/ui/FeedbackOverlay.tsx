@@ -170,7 +170,13 @@ export default function FeedbackOverlay() {
   // If on Mobile:
   if (isMobile) {
     return (
-      <div className="fixed inset-0 z-[60] bg-sky-night flex flex-col items-center justify-between overflow-hidden">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="fixed inset-0 z-[60] bg-sky-night flex flex-col items-center justify-between overflow-hidden"
+      >
         {/* Persistent Mountain Backdrop (Never flashes or unmounts!) */}
         <div className={`absolute inset-0 flex flex-col items-center justify-between p-6 transition-all duration-500 ${
           phase === 'text' ? 'blur-sm scale-95 opacity-35' : 'opacity-100 scale-100'
@@ -302,7 +308,7 @@ export default function FeedbackOverlay() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+      </motion.div>
     );
   }
 
