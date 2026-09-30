@@ -162,7 +162,8 @@ export const useGameStore = create<GameState>()(
           correctAnswersCount: newCorrectCount,
           mountainScores: newMountainScores,
           totalScore: state.totalScore + (correct ? 1 : 0),
-          gamePhase: nextPhase
+          gamePhase: nextPhase,
+          inProgress: newLives === 0 ? null : state.inProgress
         };
       }),
 

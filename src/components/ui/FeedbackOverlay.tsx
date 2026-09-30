@@ -68,6 +68,20 @@ export default function FeedbackOverlay() {
     }
   }, [isMobile, phase, correctAnswersCount, isSummitCelebration]);
 
+  // Keyboard listener: Press Enter or Space to advance to next challenge
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        nextQuestion();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [nextQuestion]);
+
   if (lastAnswerCorrect === null) return null;
 
   const targetPos = getClimberPosition(correctAnswersCount);
@@ -164,6 +178,15 @@ export default function FeedbackOverlay() {
         </span>
         {isSummitCelebration ? <Trophy className="w-4 h-4 fill-current" /> : <ArrowRight className="w-4 h-4" />}
       </motion.button>
+
+      {/* Keyboard Hint */}
+      <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-white/40 mt-2">
+        <span>Press</span>
+        <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/70 font-mono text-[10px] border border-white/10">Enter ↵</kbd>
+        <span>or</span>
+        <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/70 font-mono text-[10px] border border-white/10">Space</kbd>
+        <span>to continue</span>
+      </div>
     </motion.div>
   );
 

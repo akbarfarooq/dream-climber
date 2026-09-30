@@ -83,6 +83,28 @@ class AudioService {
     osc.stop(t + 0.1);
   }
 
+  public playTick(isUrgent = false) {
+    this.init();
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    const freq = isUrgent ? 880 : 520;
+    osc.frequency.setValueAtTime(freq, t);
+
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(isUrgent ? 0.18 : 0.08, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.07);
+  }
+
   public playSummit() {
     this.init();
     if (!this.ctx) return;

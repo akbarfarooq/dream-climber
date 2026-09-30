@@ -37,12 +37,30 @@ export default function GameScreen() {
   const question = mountain.questions[currentQuestionIndex];
   const currentMountainScore = mountainScores[currentMountainIndex];
 
-  // Shuffle options so correct answer isn't always at A
+  // BUG FIX 2: True Fisher-Yates shuffle for uniform, unbiased random options
   const shuffledOptions = useMemo(() => {
-    return [...question.options].sort(() => Math.random() - 0.5);
+    const arr = [...question.options];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   }, [currentMountainIndex, currentQuestionIndex]);
 
-  // 30-second Countdown Timer
+  const handleChooseOption = (option: { text: string; correct: boolean }) => {
+    if (gamePhase !== 'climbing') return;
+    if (soundEnabled) {
+      if (option.correct) {
+        audioService.playCorrect();
+        setTimeout(() => audioService.playStep(), 500);
+      } else {
+        audioService.playWrong();
+      }
+    }
+    submitAnswer(option.correct, false);
+  };
+
+  // 30-second Countdown Timer with Audio Warnings (Last 5 seconds tick)
   useEffect(() => {
     if (gamePhase !== 'climbing') return;
 
@@ -58,12 +76,42 @@ export default function GameScreen() {
           submitAnswer(false, true); // Timeout counts as incorrect and loses 1 life
           return 0;
         }
-        return prev - 1;
+        const next = prev - 1;
+        // Audio tick warning on last 5 seconds
+        if (next <= 5 && next > 0 && soundEnabled) {
+          audioService.playTick(next <= 2);
+        }
+        return next;
       });
     }, 1000);
 
     return () => clearInterval(timer);
   }, [currentMountainIndex, currentQuestionIndex, gamePhase, soundEnabled, submitAnswer]);
+
+  // Keyboard navigation for options (A, B, C, D or 1, 2, 3, 4)
+  useEffect(() => {
+    if (gamePhase !== 'climbing' || showExitConfirm) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      const key = e.key.toUpperCase();
+      let selectedIdx = -1;
+
+      if (key === 'A' || key === '1') selectedIdx = 0;
+      else if (key === 'B' || key === '2') selectedIdx = 1;
+      else if (key === 'C' || key === '3') selectedIdx = 2;
+      else if (key === 'D' || key === '4') selectedIdx = 3;
+
+      if (selectedIdx >= 0 && selectedIdx < shuffledOptions.length) {
+        e.preventDefault();
+        handleChooseOption(shuffledOptions[selectedIdx]);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [gamePhase, showExitConfirm, shuffledOptions, soundEnabled]);
 
   // Use the shared utility for climber position
   const climberPos = getClimberPosition(correctAnswersCount);
@@ -339,22 +387,24 @@ export default function GameScreen() {
                   key={idx}
                   label={String.fromCharCode(65 + idx)}
                   text={option.text}
-                  onClick={() => {
-                     if (gamePhase === 'climbing') {
-                        if (soundEnabled) {
-                           if (option.correct) {
-                              audioService.playCorrect();
-                              setTimeout(() => audioService.playStep(), 500);
-                           } else {
-                              audioService.playWrong();
-                           }
-                        }
-                        submitAnswer(option.correct, false);
-                     }
-                  }}
+                  onClick={() => handleChooseOption(option)}
                   className={gamePhase !== 'climbing' ? 'opacity-50 cursor-not-allowed' : ''}
                 />
               ))}
+           </div>
+
+           {/* Keyboard helper hint for desktop */}
+           <div className="hidden lg:flex items-center justify-between text-xs text-white/35 px-2 pt-1">
+             <span className="flex items-center gap-1.5">
+               <span>Press</span>
+               <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/70 font-mono text-[11px] border border-white/10">A</kbd>
+               <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/70 font-mono text-[11px] border border-white/10">B</kbd>
+               <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/70 font-mono text-[11px] border border-white/10">C</kbd>
+               <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/70 font-mono text-[11px] border border-white/10">D</kbd>
+               <span>or</span>
+               <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/70 font-mono text-[11px] border border-white/10">1-4</kbd>
+               <span>to choose</span>
+             </span>
            </div>
 
            <div className="hidden lg:flex mt-8 p-4 rounded-2xl bg-white/5 border border-white/5 items-center gap-4 text-white/40 text-sm">
