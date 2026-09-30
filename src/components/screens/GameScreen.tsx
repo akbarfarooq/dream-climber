@@ -254,26 +254,14 @@ export default function GameScreen() {
           <div className="flex items-center flex-1 min-w-0 pr-2">
              <div className="min-w-0 flex-1">
                <h2 className="text-[10px] sm:text-xs font-display text-gold leading-tight uppercase tracking-widest">{mountain.name}</h2>
-               <div className="mt-1 w-full max-w-[100px]">
+               <div className="mt-1 w-full max-w-[120px]">
                   <ProgressBar current={correctAnswersCount} total={5} color={mountain.color} />
                </div>
              </div>
           </div>
-          
-          {/* TIMER BADGE (MOBILE) */}
-          <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs font-mono font-bold shrink-0 mx-2 transition-all ${
-            timeLeft <= 5 
-              ? 'bg-red-500/25 border-red-500 text-red-400 animate-pulse' 
-              : timeLeft <= 10 
-                ? 'bg-amber-500/20 border-amber-500 text-amber-300' 
-                : 'bg-white/10 border-white/15 text-white'
-          }`}>
-            <Clock className={`w-3.5 h-3.5 ${timeLeft <= 5 ? 'text-red-400' : 'text-gold'}`} />
-            <span>{timeLeft}s</span>
-          </div>
 
           {/* MIDDLE SECTION: LIVES */}
-          <div className="shrink-0 flex justify-center items-center px-2 border-l border-white/10">
+          <div className="shrink-0 flex justify-center items-center px-3 border-l border-white/10">
             <div className="scale-75 origin-center">
                <LivesSystem lives={lives} />
             </div>
