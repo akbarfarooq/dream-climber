@@ -16,6 +16,7 @@ interface GameState {
   gamePhase: GamePhase;
   previousPhase: GamePhase | null;
   lastAnswerCorrect: boolean | null;
+  timedOut: boolean;
   completedMountains: number[];
   isMobileMenuOpen: boolean;
   inProgress: {
@@ -36,7 +37,7 @@ interface GameState {
   startMountain: (index: number) => void;
   continueMountain: () => void;
   exitToMap: () => void;
-  submitAnswer: (correct: boolean) => void;
+  submitAnswer: (correct: boolean, isTimeout?: boolean) => void;
   nextQuestion: () => void;
   retryMountain: () => void;
   resetGame: () => void;
@@ -56,6 +57,7 @@ export const useGameStore = create<GameState>()(
       gamePhase: 'title',
       previousPhase: null,
       lastAnswerCorrect: null,
+      timedOut: false,
       completedMountains: [],
       isMobileMenuOpen: false,
       inProgress: null,
@@ -103,6 +105,7 @@ export const useGameStore = create<GameState>()(
           lives: 3,
           gamePhase: 'transitioning',
           lastAnswerCorrect: null,
+          timedOut: false,
           inProgress: null
         };
       }),
@@ -116,6 +119,7 @@ export const useGameStore = create<GameState>()(
           lives: state.inProgress.lives,
           gamePhase: 'climbing',
           lastAnswerCorrect: null,
+          timedOut: false,
           inProgress: null
         };
       }),
@@ -136,10 +140,11 @@ export const useGameStore = create<GameState>()(
         lives: 3,
         gamePhase: 'climbing',
         lastAnswerCorrect: null,
+        timedOut: false,
         inProgress: null
       })),
 
-      submitAnswer: (correct) => set((state) => {
+      submitAnswer: (correct, isTimeout = false) => set((state) => {
         const newLives = correct ? state.lives : state.lives - 1;
         const newMountainScores = [...state.mountainScores];
         const newCorrectCount = state.correctAnswersCount + (correct ? 1 : 0);
@@ -153,6 +158,7 @@ export const useGameStore = create<GameState>()(
         return {
           lives: newLives,
           lastAnswerCorrect: correct,
+          timedOut: isTimeout,
           correctAnswersCount: newCorrectCount,
           mountainScores: newMountainScores,
           totalScore: state.totalScore + (correct ? 1 : 0),
@@ -178,14 +184,16 @@ export const useGameStore = create<GameState>()(
           return { 
             gamePhase: 'summit',
             completedMountains: newCompleted,
-            inProgress: null
+            inProgress: null,
+            timedOut: false
           };
         }
 
         return {
           currentQuestionIndex: state.currentQuestionIndex + 1,
           gamePhase: 'climbing',
-          lastAnswerCorrect: null
+          lastAnswerCorrect: null,
+          timedOut: false
         };
       }),
 
@@ -201,6 +209,7 @@ export const useGameStore = create<GameState>()(
         gamePhase: 'title',
         previousPhase: null,
         lastAnswerCorrect: null,
+        timedOut: false,
         completedMountains: [],
         isMobileMenuOpen: false,
         inProgress: null

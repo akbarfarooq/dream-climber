@@ -2,7 +2,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useGameStore } from '../../store/gameStore';
 import { mountains } from '../../data/levels';
-import { HelpCircle, ShieldAlert, X, Menu } from 'lucide-react';
+import { HelpCircle, ShieldAlert, X, Menu, Clock } from 'lucide-react';
 import { useMemo, useState, useEffect } from 'react';
 import ClimberCharacter from '../game/ClimberCharacter';
 import LivesSystem from '../game/LivesSystem';
@@ -31,15 +31,39 @@ export default function GameScreen() {
   } = useGameStore();
 
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(30);
 
   const mountain = mountains[currentMountainIndex];
   const question = mountain.questions[currentQuestionIndex];
   const currentMountainScore = mountainScores[currentMountainIndex];
 
-  // BUG 1 FIX: Shuffle options so correct answer isn't always at A
+  // Shuffle options so correct answer isn't always at A
   const shuffledOptions = useMemo(() => {
     return [...question.options].sort(() => Math.random() - 0.5);
   }, [currentMountainIndex, currentQuestionIndex]);
+
+  // 30-second Countdown Timer
+  useEffect(() => {
+    if (gamePhase !== 'climbing') return;
+
+    setTimeLeft(30);
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          if (soundEnabled) {
+            audioService.playWrong();
+          }
+          submitAnswer(false, true); // Timeout counts as incorrect and loses 1 life
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [currentMountainIndex, currentQuestionIndex, gamePhase, soundEnabled, submitAnswer]);
 
   // Use the shared utility for climber position
   const climberPos = getClimberPosition(correctAnswersCount);
@@ -225,26 +249,38 @@ export default function GameScreen() {
       {/* Right Side: Quiz UI (Full Width on Mobile) */}
       <section className="flex-1 lg:basis-auto lg:w-[60%] h-full bg-mt-dark/20 backdrop-blur-sm relative z-20 overflow-y-auto overflow-x-hidden flex flex-col">
         {/* Mobile Top Bar (Hidden on Desktop) */}
-        <div className="lg:hidden w-full px-4 py-3 flex flex-row items-center justify-between border-b border-white/10 shrink-0 sticky top-0 z-30 bg-sky-night/95 backdrop-blur-xl">
+        <div className="lg:hidden w-full px-4 py-2.5 flex flex-row items-center justify-between border-b border-white/10 shrink-0 sticky top-0 z-30 bg-sky-night/95 backdrop-blur-xl">
           {/* LEFT SECTION */}
           <div className="flex items-center flex-1 min-w-0 pr-2">
              <div className="min-w-0 flex-1">
                <h2 className="text-[10px] sm:text-xs font-display text-gold leading-tight uppercase tracking-widest">{mountain.name}</h2>
-               <div className="mt-1 w-full max-w-[120px]">
+               <div className="mt-1 w-full max-w-[100px]">
                   <ProgressBar current={correctAnswersCount} total={5} color={mountain.color} />
                </div>
              </div>
           </div>
           
-          {/* MIDDLE SECTION */}
-          <div className="shrink-0 flex justify-center items-center px-3 border-l border-white/10">
+          {/* TIMER BADGE (MOBILE) */}
+          <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs font-mono font-bold shrink-0 mx-2 transition-all ${
+            timeLeft <= 5 
+              ? 'bg-red-500/25 border-red-500 text-red-400 animate-pulse' 
+              : timeLeft <= 10 
+                ? 'bg-amber-500/20 border-amber-500 text-amber-300' 
+                : 'bg-white/10 border-white/15 text-white'
+          }`}>
+            <Clock className={`w-3.5 h-3.5 ${timeLeft <= 5 ? 'text-red-400' : 'text-gold'}`} />
+            <span>{timeLeft}s</span>
+          </div>
+
+          {/* MIDDLE SECTION: LIVES */}
+          <div className="shrink-0 flex justify-center items-center px-2 border-l border-white/10">
             <div className="scale-75 origin-center">
                <LivesSystem lives={lives} />
             </div>
           </div>
 
           {/* RIGHT SECTION */}
-          <div className="shrink-0 pl-3 border-l border-white/10 flex justify-end">
+          <div className="shrink-0 pl-2 border-l border-white/10 flex justify-end">
             <button
                onClick={toggleMobileMenu}
                className="p-1.5 bg-black/40 backdrop-blur-md rounded-full text-white hover:text-gold transition-colors"
@@ -254,20 +290,44 @@ export default function GameScreen() {
           </div>
         </div>
 
-        <div className="max-w-2xl mx-auto w-full p-4 md:p-8 lg:p-12 py-8 lg:my-auto">
-           <header className="mb-6 lg:mb-12 flex justify-between items-end border-b border-white/10 pb-4 lg:pb-6 gap-4">
+        <div className="max-w-2xl mx-auto w-full p-4 md:p-8 lg:p-12 py-6 lg:my-auto">
+           <header className="mb-4 lg:mb-8 flex justify-between items-end border-b border-white/10 pb-4 lg:pb-6 gap-4">
               <div>
                  <p className="text-sky-blue font-bold text-[10px] lg:text-xs mb-1 uppercase tracking-widest">{mountain.maslowStage}</p>
                  <h3 className="text-2xl lg:text-4xl font-display font-medium tracking-tight shrink-0">Challenge {currentQuestionIndex + 1} <span className="text-white/20 text-xl lg:text-2xl">/ 5</span></h3>
               </div>
               
-              <div className="hidden lg:flex items-center gap-6 shrink-0">
-                 <LivesSystem lives={lives} />
-                 <MoodMeter score={correctAnswersCount} />
+              <div className="flex items-center gap-4 lg:gap-6 shrink-0">
+                 {/* Desktop Timer Badge */}
+                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all ${
+                   timeLeft <= 5 
+                     ? 'bg-red-500/20 border-red-500 text-red-400 animate-pulse scale-105' 
+                     : timeLeft <= 10 
+                       ? 'bg-amber-500/15 border-amber-500/50 text-amber-400' 
+                       : 'bg-white/5 border-white/15 text-sky-light'
+                 }`}>
+                   <Clock className={`w-4 h-4 ${timeLeft <= 5 ? 'text-red-400' : 'text-gold'}`} />
+                   <span className="font-mono font-bold text-sm lg:text-base tracking-wider">{timeLeft}s</span>
+                 </div>
+
+                 <div className="hidden lg:flex items-center gap-6 shrink-0">
+                    <LivesSystem lives={lives} />
+                    <MoodMeter score={correctAnswersCount} />
+                 </div>
               </div>
               
               <div className="lg:hidden text-white/10 font-display text-3xl md:text-4xl shrink-0">Q.{currentQuestionIndex + 1}</div>
            </header>
+
+           {/* 30-Second Animated Progress Bar */}
+           <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden mb-6">
+             <div 
+               className={`h-full transition-all duration-1000 ease-linear ${
+                 timeLeft <= 5 ? 'bg-red-500 shadow-[0_0_10px_#ef4444]' : timeLeft <= 10 ? 'bg-amber-400 shadow-[0_0_8px_#f59e0b]' : 'bg-gold shadow-[0_0_8px_#fbbf24]'
+               }`}
+               style={{ width: `${(timeLeft / 30) * 100}%` }}
+             />
+           </div>
 
            <AnimatePresence mode="wait">
              <motion.div
@@ -275,7 +335,7 @@ export default function GameScreen() {
                initial={{ opacity: 0, y: 20 }}
                animate={{ opacity: 1, y: 0 }}
                exit={{ opacity: 0, y: -20 }}
-               className="glass-dark p-6 lg:p-10 rounded-2xl lg:rounded-[40px] mb-6 lg:mb-10 relative border border-white/10 shadow-2xl"
+               className="glass-dark p-6 lg:p-10 rounded-2xl lg:rounded-[40px] mb-6 lg:mb-8 relative border border-white/10 shadow-2xl"
              >
                 <p className="text-lg lg:text-2xl md:text-3xl font-medium leading-relaxed font-sans">{question.scenario}</p>
                 
@@ -285,7 +345,7 @@ export default function GameScreen() {
              </motion.div>
            </AnimatePresence>
 
-           <div className="flex flex-col gap-3 lg:gap-5">
+           <div className="flex flex-col gap-3 lg:gap-4">
               {shuffledOptions.map((option, idx) => (
                 <AnswerButton
                   key={idx}
@@ -301,7 +361,7 @@ export default function GameScreen() {
                               audioService.playWrong();
                            }
                         }
-                        submitAnswer(option.correct);
+                        submitAnswer(option.correct, false);
                      }
                   }}
                   className={gamePhase !== 'climbing' ? 'opacity-50 cursor-not-allowed' : ''}
@@ -309,7 +369,7 @@ export default function GameScreen() {
               ))}
            </div>
 
-           <div className="hidden lg:flex mt-12 p-4 rounded-2xl bg-white/5 border border-white/5 items-center gap-4 text-white/40 text-sm">
+           <div className="hidden lg:flex mt-8 p-4 rounded-2xl bg-white/5 border border-white/5 items-center gap-4 text-white/40 text-sm">
               <div className="p-2 bg-sky-blue/20 rounded-lg text-sky-blue shrink-0">
                 <ShieldAlert className="w-5 h-5" />
               </div>

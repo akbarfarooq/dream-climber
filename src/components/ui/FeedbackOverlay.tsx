@@ -6,13 +6,15 @@ import { mountains } from '../../data/levels';
 import MountainSVG from '../game/MountainSVG';
 import ClimberCharacter from '../game/ClimberCharacter';
 import ProgressBar from '../game/ProgressBar';
-import { getClimberPosition, getExpressionForCount } from '../../utils/climber';
+import { getClimberPosition } from '../../utils/climber';
+import { ArrowRight, Trophy, Sparkles, Clock } from 'lucide-react';
 
 export default function FeedbackOverlay() {
   const { 
     currentMountainIndex, 
     currentQuestionIndex, 
     lastAnswerCorrect, 
+    timedOut,
     correctAnswersCount,
     nextQuestion 
   } = useGameStore();
@@ -20,13 +22,13 @@ export default function FeedbackOverlay() {
   const mountain = mountains[currentMountainIndex];
   const question = mountain.questions[currentQuestionIndex];
   
-  // Find the explanation for what happened (correct or wrong)
+  // Find the selected option / correct option
+  const correctOption = question.options.find(o => o.correct);
   const selectedOption = question.options.find(o => o.correct === lastAnswerCorrect);
 
+  const isLastQuestion = currentQuestionIndex >= 4;
   const isSummitCelebration = lastAnswerCorrect && correctAnswersCount === 5;
   const mobileClimbDuration = isSummitCelebration ? 3.5 : 2.5;
-  const mobileTextDelayMs = 2500;
-  const mobileMountainDelayMs = Math.round(mobileClimbDuration * 1000 + 600);
 
   const [phase, setPhase] = useState<'text' | 'mountain'>('text');
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 1024 : false);
@@ -40,25 +42,19 @@ export default function FeedbackOverlay() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isMobile) {
-      if (phase === 'text') {
-        timer = setTimeout(() => setPhase('mountain'), mobileTextDelayMs);
-      } else if (phase === 'mountain') {
-        setAnimatedProgress(correctAnswersCount);
-        timer = setTimeout(() => nextQuestion(), mobileMountainDelayMs);
-      }
-    } else {
-      timer = setTimeout(() => nextQuestion(), isSummitCelebration ? 4000 : 3000);
-    }
-    return () => clearTimeout(timer);
-  }, [nextQuestion, isMobile, phase, correctAnswersCount, lastAnswerCorrect, isSummitCelebration, mobileMountainDelayMs, mobileTextDelayMs]);
-
   if (lastAnswerCorrect === null) return null;
 
   const targetPos = getClimberPosition(correctAnswersCount);
   const startPos = lastAnswerCorrect ? getClimberPosition(correctAnswersCount - 1) : targetPos;
+
+  const handleNextClick = () => {
+    if (isMobile && isSummitCelebration && phase === 'text') {
+      setPhase('mountain');
+      setAnimatedProgress(correctAnswersCount);
+    } else {
+      nextQuestion();
+    }
+  };
 
   const renderTextFeedback = () => (
     <motion.div
@@ -67,61 +63,102 @@ export default function FeedbackOverlay() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className={`fixed inset-0 lg:left-[40%] z-50 flex items-center justify-center p-8 backdrop-blur-xl ${
-        isSummitCelebration ? 'bg-indigo-950/90' : (lastAnswerCorrect ? 'bg-green-950/90' : 'bg-red-950/90')
+      className={`fixed inset-0 lg:left-[40%] z-50 flex items-center justify-center p-4 md:p-8 backdrop-blur-xl overflow-y-auto ${
+        timedOut 
+          ? 'bg-amber-950/90' 
+          : isSummitCelebration 
+            ? 'bg-indigo-950/90' 
+            : (lastAnswerCorrect ? 'bg-green-950/90' : 'bg-red-950/90')
       }`}
     >
-      <div className="max-w-xl w-full flex flex-col items-center text-center">
+      <div className="max-w-xl w-full flex flex-col items-center text-center my-auto py-6">
         <motion.div
           animate={{ 
             scale: [0, 1.2, 1],
-            rotate: lastAnswerCorrect ? 0 : [-10, 10, -10, 10, 0]
+            rotate: timedOut ? [-5, 5, -5, 5, 0] : (lastAnswerCorrect ? 0 : [-10, 10, -10, 10, 0])
           }}
           transition={{ duration: 0.5 }}
-          className="text-8xl mb-8"
+          className="text-7xl md:text-8xl mb-4 md:mb-6"
         >
-          {lastAnswerCorrect ? '✅' : '💡'}
+          {timedOut ? '⏱️' : (lastAnswerCorrect ? '✅' : '💡')}
         </motion.div>
 
         <motion.h2 
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className={`text-4xl md:text-5xl font-display font-bold mb-4 ${
-            lastAnswerCorrect ? 'text-green-300' : 'text-orange-300'
+          className={`text-3xl md:text-5xl font-display font-bold mb-3 ${
+            timedOut 
+              ? 'text-amber-300' 
+              : (lastAnswerCorrect ? 'text-green-300' : 'text-orange-300')
           }`}
         >
-          {lastAnswerCorrect ? 'Excellent Choice!' : 'Not Quite Yet!'}
+          {timedOut 
+            ? "Time's Up! (30s Limit)" 
+            : (lastAnswerCorrect ? 'Excellent Choice!' : 'Not Quite Yet!')}
         </motion.h2>
+
+        <p className="text-white/60 text-xs md:text-sm font-bold uppercase tracking-widest mb-4">
+          Challenge {currentQuestionIndex + 1} of 5 Completed
+        </p>
 
         <motion.div 
            initial={{ y: 20, opacity: 0 }}
            animate={{ y: 0, opacity: 1 }}
-           transition={{ delay: 0.2 }}
-           className="glass-dark bg-white/10 p-8 rounded-[40px] border border-white/10 w-full shadow-2xl"
+           transition={{ delay: 0.15 }}
+           className="glass-dark bg-white/10 p-6 md:p-8 rounded-3xl md:rounded-[36px] border border-white/10 w-full shadow-2xl text-left"
         >
-          <p className="text-xl md:text-2xl text-white mb-6 leading-relaxed font-sans">
-            {selectedOption?.explanation || (lastAnswerCorrect ? 'You made the right move!' : 'There is a better way to handle this.')}
-          </p>
+          <div className="mb-4">
+            <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white/50">Outcome</span>
+            <p className="text-base md:text-xl text-white mt-1 leading-relaxed font-sans">
+              {timedOut 
+                ? "30 seconds expired before an option was chosen! You lost 1 life, but keep your focus."
+                : (selectedOption?.explanation || (lastAnswerCorrect ? 'You made the right move!' : 'There is a better way to handle this.'))}
+            </p>
+          </div>
+
+          {!lastAnswerCorrect && correctOption && (
+            <div className="mb-4 p-3.5 rounded-2xl bg-white/5 border border-white/10">
+              <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-gold flex items-center gap-1.5 mb-1">
+                <Sparkles className="w-3.5 h-3.5" /> Recommended Move
+              </span>
+              <p className="text-xs md:text-sm text-white/90 font-medium">
+                {correctOption.text}
+              </p>
+            </div>
+          )}
           
-          <div className="border-t border-white/20 pt-6 mt-6">
-            <p className={`text-sm md:text-base font-bold uppercase tracking-[0.2em] mb-2 ${
-              lastAnswerCorrect ? 'text-green-300' : 'text-orange-300'
+          <div className="border-t border-white/15 pt-4 mt-4">
+            <p className={`text-xs md:text-sm font-bold uppercase tracking-[0.2em] mb-1.5 ${
+              timedOut 
+                ? 'text-amber-300' 
+                : (lastAnswerCorrect ? 'text-green-300' : 'text-orange-300')
             }`}>
                🧠 Psychology Insight
             </p>
-            <p className="text-white/70 italic text-lg">{question.psychConcept}</p>
+            <p className="text-white/85 italic text-sm md:text-base leading-relaxed font-sans">
+              {question.psychConcept}
+            </p>
           </div>
         </motion.div>
 
-        {!isMobile && (
-          <motion.p 
-            animate={{ opacity: [0.4, 1, 0.4] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="text-white/40 text-sm mt-8 font-bold tracking-widest uppercase"
-          >
-            Resuming climb in 3 seconds...
-          </motion.p>
-        )}
+        {/* User-controlled Next Button - No Auto Rush! */}
+        <motion.button
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.96 }}
+          onClick={handleNextClick}
+          className={`mt-6 md:mt-8 px-8 md:px-12 py-3.5 md:py-4 rounded-2xl font-bold font-display text-base md:text-lg flex items-center justify-center gap-3 shadow-2xl transition-all uppercase tracking-wider ${
+            isSummitCelebration 
+              ? 'btn-gold text-sky-night shadow-[0_0_30px_rgba(251,191,36,0.6)]' 
+              : 'bg-white text-sky-night hover:bg-gold'
+          }`}
+        >
+          <span>
+            {isLastQuestion 
+              ? (isSummitCelebration ? 'Conquer Summit' : 'Complete Mountain') 
+              : 'Next Challenge'}
+          </span>
+          {isSummitCelebration ? <Trophy className="w-5 h-5 fill-current" /> : <ArrowRight className="w-5 h-5" />}
+        </motion.button>
       </div>
     </motion.div>
   );
@@ -133,17 +170,17 @@ export default function FeedbackOverlay() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="fixed inset-0 z-[60] bg-sky-night flex flex-col items-center justify-center lg:hidden"
+      className="fixed inset-0 z-[60] bg-sky-night flex flex-col items-center justify-between p-6 lg:hidden"
     >
       {/* Top HUD */}
-      <div className="absolute top-8 left-0 right-0 px-6 z-20 flex flex-col items-center gap-4">
-        <h2 className="text-2xl font-display text-gold uppercase tracking-widest">{mountain.name}</h2>
+      <div className="w-full pt-4 flex flex-col items-center gap-3">
+        <h2 className="text-xl font-display text-gold uppercase tracking-widest">{mountain.name}</h2>
         <div className="w-64 max-w-full">
            <ProgressBar current={animatedProgress} total={5} color={mountain.color} />
         </div>
       </div>
 
-      <div className="relative w-full h-[60vh] mt-20 flex items-center justify-center auto-size">
+      <div className="relative w-full h-[50vh] flex items-center justify-center auto-size">
         <div className="absolute inset-0 z-0 opacity-80 pointer-events-none w-full h-full">
           <MountainSVG index={currentMountainIndex} />
         </div>
@@ -195,7 +232,7 @@ export default function FeedbackOverlay() {
                  transition={{ delay: 1.5, type: "spring", bounce: 0.5, duration: 1 }}
                  className="absolute top-[25%] left-1/2 -translate-x-1/2 z-30"
                >
-                 <h2 className="text-4xl md:text-5xl font-display font-bold text-gold drop-shadow-[0_0_20px_rgba(251,191,36,0.8)] whitespace-nowrap text-center">
+                 <h2 className="text-3xl md:text-5xl font-display font-bold text-gold drop-shadow-[0_0_20px_rgba(251,191,36,0.8)] whitespace-nowrap text-center">
                    SUMMIT<br/>CONQUERED!
                  </h2>
                </motion.div>
@@ -204,13 +241,18 @@ export default function FeedbackOverlay() {
         </div>
       </div>
       
-      <motion.p 
-        animate={{ opacity: [0.4, 1, 0.4] }}
-        transition={{ duration: 2, repeat: Infinity }}
-        className="absolute bottom-12 text-white/40 text-sm font-bold tracking-widest uppercase"
-      >
-        Preparing next challenge...
-      </motion.p>
+      {/* Explicit Button on Mobile Mountain too */}
+      <div className="w-full pb-6 flex justify-center">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => nextQuestion()}
+          className="btn-gold text-sky-night px-8 py-3.5 rounded-2xl font-bold font-display text-base flex items-center gap-2 shadow-2xl tracking-wider uppercase"
+        >
+          <span>{isLastQuestion ? 'Go To Summit' : 'Next Challenge'}</span>
+          <ArrowRight className="w-5 h-5" />
+        </motion.button>
+      </div>
     </motion.div>
   );
 
@@ -221,4 +263,3 @@ export default function FeedbackOverlay() {
     </AnimatePresence>
   );
 }
-
