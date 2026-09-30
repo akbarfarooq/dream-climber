@@ -12,36 +12,36 @@ export default function SummitScreen() {
   const score = correctAnswersCount;
 
   return (
-    <div className="relative h-full w-full flex flex-col items-center justify-center bg-sky-night overflow-x-hidden pt-12 pb-24 lg:pt-32 lg:pb-32 px-6 overflow-y-auto">
+    <div className="relative h-full w-full flex flex-col items-center overflow-x-hidden overflow-y-auto bg-sky-night p-6 py-6 md:py-8">
       <ParticleBackground type="confetti" />
       
       <div className="absolute inset-0 z-0 opacity-40">
         <Mountain3D color={mountain.color} weather="sunrise" />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center text-center max-w-2xl">
+      <div className="relative z-10 flex flex-col items-center text-center max-w-2xl m-auto py-2">
         <motion.div
            initial={{ scale: 0, rotate: -200 }}
            animate={{ scale: 1, rotate: 0 }}
            transition={{ type: "spring", duration: 1 }}
-           className="bg-gold p-4 md:p-6 rounded-full shadow-[0_0_50px_rgba(255,215,0,0.5)] mb-6 md:mb-8"
+           className="bg-gold p-3.5 md:p-5 rounded-full shadow-[0_0_50px_rgba(255,215,0,0.5)] mb-4 md:mb-6"
         >
-           <Medal className="w-12 h-12 md:w-20 md:h-20 text-sky-night" />
+           <Medal className="w-10 h-10 md:w-16 md:h-16 text-sky-night" />
         </motion.div>
 
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-4xl md:text-7xl font-display title-gold mb-3 md:mb-4 uppercase"
+          className="text-3xl md:text-6xl font-display title-gold mb-2 md:mb-3 uppercase"
         >
           Summit Reached!
         </motion.h1>
         
-        <p className="text-lg md:text-2xl text-sky-blue font-light mb-8 md:mb-12 tracking-[0.2em] uppercase">
+        <p className="text-base md:text-xl text-sky-blue font-light mb-6 md:mb-8 tracking-[0.2em] uppercase">
           {mountain.name} CONQUERED
         </p>
 
-        <div className="glass w-full p-6 md:p-8 rounded-[30px] md:rounded-[40px] border-2 border-gold/30 mb-8 md:mb-12">
+        <div className="glass w-full p-5 md:p-7 rounded-[24px] md:rounded-[36px] border-2 border-gold/30 mb-6 md:mb-8">
             <div className="flex justify-center gap-2 md:gap-4 mb-4 md:mb-6">
               {[...Array(5)].map((_, i) => (
                 <motion.div

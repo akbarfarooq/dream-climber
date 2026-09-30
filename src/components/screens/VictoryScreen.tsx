@@ -29,11 +29,11 @@ export default function VictoryScreen() {
   const rank = getRank(totalScore);
 
   return (
-    <div className="relative h-full w-full flex flex-col items-center justify-center bg-sky-night p-6 md:p-8 overflow-y-auto overflow-x-hidden py-12 pb-24 lg:pb-32">
+    <div className="relative h-full w-full flex flex-col items-center overflow-y-auto overflow-x-hidden bg-sky-night p-4 md:p-6 py-6 md:py-8">
       <ParticleBackground type="confetti" />
       <div className="absolute inset-0"><ParticleBackground type="stars" /></div>
       
-      <div className="relative z-10 w-full max-w-4xl text-center flex flex-col items-center">
+      <div className="relative z-10 w-full max-w-4xl text-center flex flex-col items-center m-auto py-2">
         <motion.div
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

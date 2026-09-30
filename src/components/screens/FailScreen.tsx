@@ -12,31 +12,31 @@ export default function FailScreen() {
   const questionsSoFar = currentQuestionIndex + 1;
 
   return (
-    <div className="relative h-full w-full flex flex-col items-center justify-center bg-red-950/20 overflow-x-hidden p-6 md:p-8 pb-24 lg:pb-32">
+    <div className="relative h-full w-full flex flex-col items-center overflow-x-hidden overflow-y-auto bg-red-950/20 p-4 md:p-6 py-6 md:py-8">
       <div className="absolute inset-0 bg-black/80 z-0" />
       
       <motion.div 
-        initial={{ opacity: 0, y: 50 }}
+        initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 w-full max-w-2xl glass-dark p-8 md:p-12 rounded-3xl md:rounded-[50px] border-danger/30 text-center flex flex-col items-center"
+        className="relative z-10 w-full max-w-xl glass-dark p-6 md:p-8 rounded-3xl border-danger/30 text-center flex flex-col items-center m-auto py-2"
       >
         <motion.div
            animate={{ rotate: [0, -10, 10, -10, 0], y: [0, 10, 0] }}
            transition={{ duration: 1, repeat: Infinity }}
-           className="w-24 h-24 bg-danger rounded-3xl flex items-center justify-center mb-8 shadow-2xl"
+           className="w-16 h-16 md:w-20 md:h-20 bg-danger rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-2xl"
         >
-           <Skull className="w-12 h-12 text-white" />
+           <Skull className="w-8 h-8 md:w-10 md:h-10 text-white" />
         </motion.div>
 
-        <h1 className="text-4xl md:text-5xl font-display text-white mb-2 uppercase tracking-tighter">Mountain Too Tough!</h1>
-        <h2 className="text-2xl text-danger font-bold mb-8">{mountain.name}</h2>
+        <h1 className="text-3xl md:text-4xl font-display text-white mb-1 uppercase tracking-tight">Mountain Too Tough!</h1>
+        <h2 className="text-xl md:text-2xl text-danger font-bold mb-4 md:mb-6">{mountain.name}</h2>
         
-        <div className="w-full bg-white/5 rounded-3xl p-6 mb-8 border border-white/5">
-           <p className="text-white/60 mb-1">Your Climb Stats</p>
-           <p className="text-3xl font-bold">
+        <div className="w-full bg-white/5 rounded-2xl p-4 md:p-5 mb-5 md:mb-6 border border-white/5">
+           <p className="text-white/60 text-xs mb-1">Your Climb Stats</p>
+           <p className="text-2xl md:text-3xl font-bold">
              {correctCount} <span className="text-white/20">out of</span> {questionsSoFar} <span className="text-white/20">Correct</span>
            </p>
-           <p className="text-sm text-white/40 mt-3">You need at least 3 correct answers to safely summit this mountain.</p>
+           <p className="text-xs text-white/40 mt-2">You need at least 3 correct answers to safely summit this mountain.</p>
         </div>
 
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">

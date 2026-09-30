@@ -76,27 +76,27 @@ export default function FeedbackOverlay() {
   // The Psychology Insight Card (used for both Mobile and Desktop)
   const renderInsightContent = () => (
     <motion.div
-      initial={{ y: 40, opacity: 0, scale: 0.96 }}
+      initial={{ y: 25, opacity: 0, scale: 0.97 }}
       animate={{ y: 0, opacity: 1, scale: 1 }}
-      exit={{ y: 40, opacity: 0, scale: 0.96 }}
+      exit={{ y: 25, opacity: 0, scale: 0.97 }}
       transition={{ type: "spring", damping: 25, stiffness: 260 }}
-      className="max-w-xl w-full flex flex-col items-center text-center my-auto py-4"
+      className="max-w-lg w-full flex flex-col items-center text-center m-auto py-2 px-3"
     >
       <motion.div
         animate={{ 
-          scale: [0, 1.2, 1],
-          rotate: timedOut ? [-5, 5, -5, 5, 0] : (lastAnswerCorrect ? 0 : [-10, 10, -10, 10, 0])
+          scale: [0, 1.15, 1],
+          rotate: timedOut ? [-5, 5, -5, 5, 0] : (lastAnswerCorrect ? 0 : [-8, 8, -8, 8, 0])
         }}
-        transition={{ duration: 0.4 }}
-        className="text-6xl md:text-7xl mb-2 md:mb-4"
+        transition={{ duration: 0.35 }}
+        className="text-5xl md:text-6xl mb-1.5 md:mb-2"
       >
         {timedOut ? '⏱️' : (lastAnswerCorrect ? '✅' : '💡')}
       </motion.div>
 
       <motion.h2 
-        initial={{ y: 15, opacity: 0 }}
+        initial={{ y: 10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className={`text-2xl md:text-4xl font-display font-bold mb-1 md:mb-2 ${
+        className={`text-2xl md:text-3xl font-display font-bold mb-1 ${
           timedOut 
             ? 'text-amber-300' 
             : (lastAnswerCorrect ? 'text-green-300' : 'text-orange-300')
@@ -107,14 +107,14 @@ export default function FeedbackOverlay() {
           : (lastAnswerCorrect ? 'Excellent Choice!' : 'Not Quite Yet!')}
       </motion.h2>
 
-      <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-3">
+      <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-2.5">
         Challenge {currentQuestionIndex + 1} of 5 Completed
       </p>
 
-      <div className="glass-dark bg-mt-dark/85 backdrop-blur-xl p-5 md:p-8 rounded-3xl border border-white/15 w-full shadow-2xl text-left">
-        <div className="mb-3.5">
+      <div className="glass-dark bg-mt-dark/90 backdrop-blur-xl p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/15 w-full shadow-2xl text-left">
+        <div className="mb-3">
           <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white/50">Outcome</span>
-          <p className="text-sm md:text-lg text-white mt-1 leading-relaxed font-sans">
+          <p className="text-xs md:text-sm text-white mt-0.5 leading-relaxed font-sans">
             {timedOut 
               ? "30 seconds expired before an option was chosen! 1 life was lost, but keep your focus."
               : (selectedOption?.explanation || (lastAnswerCorrect ? 'You made the right move!' : 'There is a better way to handle this.'))}
@@ -122,18 +122,18 @@ export default function FeedbackOverlay() {
         </div>
 
         {!lastAnswerCorrect && correctOption && (
-          <div className="mb-3.5 p-3 rounded-2xl bg-white/5 border border-white/10">
-            <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-gold flex items-center gap-1.5 mb-1">
-              <Sparkles className="w-3.5 h-3.5" /> Recommended Move
+          <div className="mb-3 p-2.5 rounded-xl bg-white/5 border border-white/10">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-gold flex items-center gap-1.5 mb-0.5">
+              <Sparkles className="w-3 h-3" /> Recommended Move
             </span>
-            <p className="text-xs md:text-sm text-white/90 font-medium">
+            <p className="text-xs text-white/90 font-medium leading-snug">
               {correctOption.text}
             </p>
           </div>
         )}
         
-        <div className="border-t border-white/15 pt-3 mt-3">
-          <p className={`text-xs md:text-sm font-bold uppercase tracking-[0.2em] mb-1 ${
+        <div className="border-t border-white/15 pt-2.5 mt-2.5">
+          <p className={`text-[11px] md:text-xs font-bold uppercase tracking-[0.18em] mb-1 ${
             timedOut 
               ? 'text-amber-300' 
               : (lastAnswerCorrect ? 'text-green-300' : 'text-orange-300')
@@ -151,7 +151,7 @@ export default function FeedbackOverlay() {
         whileHover={{ scale: 1.04 }}
         whileTap={{ scale: 0.96 }}
         onClick={() => nextQuestion()}
-        className={`mt-5 md:mt-7 px-8 md:px-12 py-3.5 md:py-4 rounded-2xl font-bold font-display text-sm md:text-base flex items-center justify-center gap-3 shadow-2xl transition-all uppercase tracking-wider ${
+        className={`mt-3.5 md:mt-5 px-8 md:px-10 py-3 rounded-xl font-bold font-display text-xs md:text-sm flex items-center justify-center gap-2.5 shadow-2xl transition-all uppercase tracking-wider ${
           isSummitCelebration 
             ? 'btn-gold text-sky-night shadow-[0_0_25px_rgba(251,191,36,0.6)]' 
             : 'bg-white text-sky-night hover:bg-gold'
@@ -162,7 +162,7 @@ export default function FeedbackOverlay() {
             ? (isSummitCelebration ? 'Conquer Summit' : 'Complete Mountain') 
             : 'Next Challenge'}
         </span>
-        {isSummitCelebration ? <Trophy className="w-4 h-4 md:w-5 md:h-5 fill-current" /> : <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />}
+        {isSummitCelebration ? <Trophy className="w-4 h-4 fill-current" /> : <ArrowRight className="w-4 h-4" />}
       </motion.button>
     </motion.div>
   );
@@ -177,7 +177,7 @@ export default function FeedbackOverlay() {
         transition={{ duration: 0.2 }}
         className="fixed inset-0 z-[60] bg-sky-night flex flex-col items-center justify-between overflow-hidden"
       >
-        {/* Persistent Mountain Backdrop (Never flashes or unmounts!) */}
+        {/* Persistent Mountain Backdrop */}
         <div className={`absolute inset-0 flex flex-col items-center justify-between p-6 transition-all duration-500 ${
           phase === 'text' ? 'blur-sm scale-95 opacity-35' : 'opacity-100 scale-100'
         }`}>
@@ -288,14 +288,14 @@ export default function FeedbackOverlay() {
           </div>
         </div>
 
-        {/* Smooth Glassmorphic Insight Overlay on Mobile (Glides in over the mountain) */}
+        {/* Smooth Glassmorphic Insight Overlay on Mobile */}
         <AnimatePresence>
           {phase === 'text' && (
             <motion.div
               initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
               animate={{ opacity: 1, backdropFilter: 'blur(16px)' }}
               exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-              transition={{ duration: 0.4 }}
+              transition={{ duration: 0.35 }}
               className={`absolute inset-0 z-20 flex items-center justify-center p-4 overflow-y-auto ${
                 timedOut 
                   ? 'bg-amber-950/80' 
@@ -312,15 +312,15 @@ export default function FeedbackOverlay() {
     );
   }
 
-  // Desktop Flow (Mountain is permanently visible on left side, feedback overlay on right)
+  // Desktop Flow: positioned below the 80px (top-20) navbar on the right 60% side
   return (
     <motion.div
       key="text-feedback-desktop"
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
-      className={`fixed inset-0 lg:left-[40%] z-50 flex items-center justify-center p-6 md:p-8 backdrop-blur-xl overflow-y-auto ${
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className={`fixed top-20 bottom-0 right-0 left-0 lg:left-[40%] z-40 flex items-center justify-center p-4 md:p-6 backdrop-blur-xl overflow-y-auto ${
         timedOut 
           ? 'bg-amber-950/90' 
           : isSummitCelebration 

@@ -25,55 +25,55 @@ export default function TransitionScreen() {
   };
 
   return (
-    <div className="relative h-full w-full flex flex-col items-center justify-center bg-mt-dark overflow-y-auto p-6 md:p-8">
+    <div className="relative h-full w-full flex flex-col items-center overflow-y-auto overflow-x-hidden bg-mt-dark p-4 md:p-6 py-6 md:py-8">
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
+        initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 1.05 }}
-        transition={{ duration: 0.5 }}
-        className="relative z-10 text-center flex flex-col items-center max-w-xl w-full my-auto"
+        transition={{ duration: 0.4 }}
+        className="relative z-10 text-center flex flex-col items-center max-w-lg w-full m-auto py-2"
       >
-        <span className="text-gold tracking-[0.35em] text-xs md:text-sm font-bold mb-3 uppercase flex items-center gap-2">
-          <MountainIcon className="w-4 h-4 text-gold" /> Ready For Next Peak
+        <span className="text-gold tracking-[0.3em] text-xs font-bold mb-2 uppercase flex items-center gap-2">
+          <MountainIcon className="w-3.5 h-3.5 text-gold" /> Ready For Next Peak
         </span>
         
-        <h1 className="text-4xl md:text-6xl font-display title-gold mb-2 uppercase">
+        <h1 className="text-3xl md:text-5xl font-display title-gold mb-1 uppercase tracking-wide">
           PEAK 0{currentMountainIndex + 1}
         </h1>
         
-        <h2 className="text-2xl md:text-3xl font-bold mb-3 text-white">
+        <h2 className="text-xl md:text-2xl font-bold mb-2 text-white">
           {mountain.name}
         </h2>
 
-        <div className="glass px-6 py-2 rounded-full mb-6 border border-white/10">
-           <p className="text-sky-blue text-sm font-bold tracking-widest uppercase">{mountain.maslowStage}</p>
+        <div className="glass px-4 py-1.5 rounded-full mb-3 border border-white/10">
+           <p className="text-sky-blue text-xs font-bold tracking-widest uppercase">{mountain.maslowStage}</p>
         </div>
         
-        <div className="w-48 h-48 md:w-56 md:h-56 relative my-2">
+        <div className="w-32 h-32 md:w-40 md:h-40 relative my-2">
            <MountainSVG index={currentMountainIndex} />
         </div>
 
-        <p className="text-white/60 text-sm md:text-base my-4 max-w-md">
+        <p className="text-white/60 text-xs md:text-sm my-2 md:my-3 max-w-md leading-relaxed">
           5 Challenges to reach the summit. You have 30 seconds for each challenge to make your decision.
         </p>
 
         {/* Start Button & Back Option */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 mt-4 w-full max-w-sm justify-center">
+        <div className="flex flex-col sm:flex-row items-center gap-3 mt-3 w-full max-w-sm justify-center">
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
             onClick={handleStart}
-            className="w-full sm:flex-1 py-4 px-8 rounded-2xl btn-gold text-sky-night font-bold font-display text-lg flex items-center justify-center gap-3 shadow-xl hover:shadow-[0_0_25px_rgba(251,191,36,0.6)] transition-all uppercase tracking-wider"
+            className="w-full sm:flex-1 py-3 px-6 rounded-2xl btn-gold text-sky-night font-bold font-display text-base flex items-center justify-center gap-2.5 shadow-xl hover:shadow-[0_0_25px_rgba(251,191,36,0.6)] transition-all uppercase tracking-wider"
           >
             <span>START LEVEL</span>
-            <Play className="w-5 h-5 fill-current" />
+            <Play className="w-4 h-4 fill-current" />
           </motion.button>
 
           <button
             onClick={() => setPhase('worldmap')}
-            className="py-3 px-5 text-white/50 hover:text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2 transition-colors"
+            className="py-2.5 px-4 text-white/50 hover:text-white text-xs font-bold uppercase tracking-widest flex items-center gap-1.5 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" /> Map
+            <ArrowLeft className="w-3.5 h-3.5" /> Map
           </button>
         </div>
       </motion.div>

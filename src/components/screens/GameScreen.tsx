@@ -278,7 +278,7 @@ export default function GameScreen() {
           </div>
         </div>
 
-        <div className="max-w-2xl mx-auto w-full p-4 md:p-8 lg:p-12 py-6 lg:my-auto">
+        <div className="max-w-2xl mx-auto w-full p-4 md:p-8 lg:p-10 py-4 lg:py-6 lg:m-auto">
            <header className="mb-4 lg:mb-8 flex justify-between items-end border-b border-white/10 pb-4 lg:pb-6 gap-4">
               <div>
                  <p className="text-sky-blue font-bold text-[10px] lg:text-xs mb-1 uppercase tracking-widest">{mountain.maslowStage}</p>

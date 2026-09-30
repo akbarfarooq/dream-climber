@@ -10,14 +10,14 @@ export default function WelcomeScreen() {
   const titleWords = "THE DREAM CLIMBER".split(" ");
 
   return (
-    <div className="relative h-full w-full flex flex-col items-center justify-center bg-sky-night overflow-hidden py-12 pt-8 lg:pt-12 pb-24 lg:pb-32">
+    <div className="relative h-full w-full flex flex-col items-center overflow-x-hidden overflow-y-auto bg-sky-night p-6 py-6 md:py-8">
       <ParticleBackground type="stars" />
       
       <div className="absolute inset-0 z-0">
         <Mountain3D color="#1a1a3e" />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center text-center px-6">
+      <div className="relative z-10 flex flex-col items-center text-center px-6 m-auto py-2">
         <motion.div className="mb-6">
           <div className="flex flex-wrap justify-center gap-2 md:gap-4">
             {titleWords.map((word, i) => (

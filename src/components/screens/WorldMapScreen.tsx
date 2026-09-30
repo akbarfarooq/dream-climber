@@ -24,7 +24,7 @@ export default function WorldMapScreen() {
   };
 
   return (
-    <div className="relative h-full w-full bg-mt-dark p-6 md:p-12 overflow-y-auto pt-10 lg:pt-16 pb-24 lg:pb-32">
+    <div className="relative h-full w-full bg-mt-dark p-4 md:p-8 overflow-y-auto pt-6 lg:pt-8 pb-16 lg:pb-24">
       <ParticleBackground type="stars" />
       
       <div className="relative z-10 max-w-7xl mx-auto py-6">
